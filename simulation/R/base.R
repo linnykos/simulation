@@ -69,8 +69,8 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
         vec <- sapply(1:trials, fun)
       }
     } else {
-      trial <- 0 #debugging reasons
-      vec <- foreach::"%dopar%"(foreach::foreach(i = 1:trials), fun(trial))
+      i <- 0 #debugging reasons
+      vec <- foreach::"%dopar%"(foreach::foreach(i = 1:trials), fun(i))
       if(!as_list) vec <- .adjustFormat(vec)
     }
 
@@ -88,9 +88,9 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
   len <- sapply(lis, length)
   if(length(unique(len)) != 1) return(lis)
 
-  ncol <- length(unique(len))
-  if(ncol == 1) return(as.numeric(unlist(lis)))
+  nrow <- unique(len)
+  if(nrow == 1) return(as.numeric(unlist(lis)))
 
   vec <- as.numeric(unlist(lis))
-  matrix(vec, ncol = ncol, byrow = T)
+  matrix(vec, nrow = nrow)
 }
