@@ -3,11 +3,12 @@
 *.Rhistory
 *.Ruserdata
 *.out
+simulation/.Rproj.user
+*.Rproj.user
 .Rproj.user
 *.Rout
 .Rout
 *.ROut
 .ROut
-main/beta_vec
 *.RData
 .RData

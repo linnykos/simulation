@@ -16,6 +16,9 @@
 #' row of \code{paramMat}. Each element of the list is typically a list or
 #' a matrix. This depends on how the user set up what \code{criterion} returns.
 #'
+#' The function has a \code{tryCatch} call, so if an error happens, the result for that
+#' trial and row of \code{paramMat} will be an \code{NA}.
+#'
 #' The remaining inputs for \code{simulation_generator} are cosmetic.
 #'
 #' \code{as_list} is a boolean, where if \code{TRUE},
@@ -42,7 +45,11 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
     fun <- function(y){
       if(trials > 10 && y %% floor(trials/10) == 0) cat("*")
       set.seed(y)
-      criterion(rule(paramMat[x,]), paramMat[x,])
+      tryCatch({
+        criterion(rule(paramMat[x,]), paramMat[x,])
+      }, error = function(e){
+        NA
+      })
     }
 
     if(is.na(cores)){
@@ -52,7 +59,7 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
         vec <- sapply(1:trials, fun)
       }
     } else {
-      trial <- 0 #debugging reasons
+    trial <- 0 #debugging reasons
       vec <- foreach::"%dopar%"(foreach::foreach(i = 1:trials), fun(trial))
       if(!as_list) vec <- .adjustFormat(vec)
     }
