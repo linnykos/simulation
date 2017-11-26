@@ -25,32 +25,41 @@
 #' mandates that the \code{trials} results for each row of \code{paramMat}
 #' is returned as a list. If \code{FALSE}, then the results are returned as a matrix.
 #'
+#' \code{filepath} is a filepath to the temporary save location. If set to not \code{NA},
+#' \code{simulation_generator} will save the results of every row of \code{paramMat} there
+#' as it runs the simulations.
+#'
 #' @param rule function
 #' @param paramMat matrix
 #' @param criterion function
 #' @param trials number of trials for each row
 #' @param cores number of cores
 #' @param as_list boolean
+#' @param filepath string
+#' @param verbose boolean
 #'
 #' @return list
 #' @export
 simulation_generator <- function(rule, criterion, paramMat, trials = 10,
- cores = NA, as_list = T){
+ cores = NA, as_list = T, filepath = NA, verbose = T){
 
   if(!is.na(cores)) doMC::registerDoMC(cores = cores)
 
-  res <- lapply(1:nrow(paramMat), function(x){
-    cat(paste0("\nRow ", x, " started!\n"))
+  # function for each trial and row of paramMat
+  fun <- function(y){
+    if(verbose && trials > 10 && y %% floor(trials/10) == 0) cat("*")
+    set.seed(y)
+    tryCatch({
+      criterion(rule(paramMat[x,]), paramMat[x,])
+    }, error = function(e){
+      NA
+    })
+  }
 
-    fun <- function(y){
-      if(trials > 10 && y %% floor(trials/10) == 0) cat("*")
-      set.seed(y)
-      tryCatch({
-        criterion(rule(paramMat[x,]), paramMat[x,])
-      }, error = function(e){
-        NA
-      })
-    }
+  # run the simulations
+  res <- vector("list", nrow(paramMat))
+  for(x in 1:nrow(paramMat)){
+    if(verbose) cat(paste0("\nRow ", x, " started!\n"))
 
     if(is.na(cores)){
       if(as_list){
@@ -59,11 +68,14 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
         vec <- sapply(1:trials, fun)
       }
     } else {
-    trial <- 0 #debugging reasons
+      trial <- 0 #debugging reasons
       vec <- foreach::"%dopar%"(foreach::foreach(i = 1:trials), fun(trial))
       if(!as_list) vec <- .adjustFormat(vec)
     }
-  })
+
+    res[[x]] <- vec
+    if(!is.na(filepath)) save(res, file = filepath)
+  }
 
   names(res) <- sapply(1:nrow(paramMat), function(x){
     paste0(paramMat[x,], collapse = "-")})

@@ -5,7 +5,7 @@
 \title{Simulation setup}
 \usage{
 simulation_generator(rule, criterion, paramMat, trials = 10, cores = NA,
-  as_list = T)
+  as_list = T, filepath = NA, verbose = T)
 }
 \arguments{
 \item{rule}{function}
@@ -19,6 +19,10 @@ simulation_generator(rule, criterion, paramMat, trials = 10, cores = NA,
 \item{cores}{number of cores}
 
 \item{as_list}{boolean}
+
+\item{filepath}{string}
+
+\item{verbose}{boolean}
 }
 \value{
 list
@@ -41,9 +45,16 @@ The output to \code{simulation_generator} is a list, one element for each
 row of \code{paramMat}. Each element of the list is typically a list or
 a matrix. This depends on how the user set up what \code{criterion} returns.
 
+The function has a \code{tryCatch} call, so if an error happens, the result for that
+trial and row of \code{paramMat} will be an \code{NA}.
+
 The remaining inputs for \code{simulation_generator} are cosmetic.
 
 \code{as_list} is a boolean, where if \code{TRUE},
 mandates that the \code{trials} results for each row of \code{paramMat}
 is returned as a list. If \code{FALSE}, then the results are returned as a matrix.
+
+\code{filepath} is a filepath to the temporary save location. If set to not \code{NA},
+\code{simulation_generator} will save the results of every row of \code{paramMat} there
+as it runs the simulations.
 }
