@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "simulation_generator <- function(rule, paramMat, criterion, trials,\n cores = NA, as_list = T){\n\n  if(!is.na(cores)) registerDoMC(cores = cores)\n\n  res <- lapply(1:nrow(paramMat), function(x){\n    cat(paste0(\"\\nRow \", x, \" started!\\n\"))\n\n    fun <- function(y){\n      if(trials > 10 && y %% floor(trials/10) == 0) cat(\"*\")\n      set.seed(y)\n      criterion(rule(paramMat[x,]), paramMat[x,])\n    }\n    if(is.na(cores)){\n      if(as_list){\n        vec <- lapply(1:trials, fun)\n      } else {\n        vec <- sapply(1:trials, fun)\n      }\n    } else {\n      vec <- foreach(trial = 1:trials) %dopar% fun(trial)\n      if(!as_list) vec <- .adjustFormat(vec)\n    }\n  })\n\n  names(res) <- sapply(1:nrow(paramMat), function(x){\n    paste0(paramMat[x,], collapse = \"-\")})\n\n  res\n}\n\n.adjustFormat <- function(lis){\n  len <- sapply(lis, length)\n  if(length(unique(len)) != 1) return(lis)\n\n  ncol <- length(unique(len))\n  if(ncol == 1) return(as.numeric(unlist(lis)))\n\n  vec <- as.numeric(unlist(lis))\n  matrix(vec, ncol = ncol, byrow = T)\n}\n",
+    "created" : 1511702814738.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "334964261",
+    "id" : "CBB90497",
+    "lastKnownWriteTime" : 1509774099,
+    "last_content_update" : 1509774099,
+    "path" : "~/Dropbox/Collaboration and People/Kathryn Roeder - private/simulation/simulation/R/base.R",
+    "project_path" : "R/base.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
