@@ -42,6 +42,7 @@
 #' @export
 simulation_generator <- function(rule, criterion, paramMat, trials = 10,
  cores = NA, as_list = T, filepath = NA, verbose = T){
+  stopifnot(is.matrix(paramMat))
 
   if(!is.na(cores)) doMC::registerDoMC(cores = cores)
 
@@ -59,7 +60,7 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
   # run the simulations
   res <- vector("list", nrow(paramMat))
   for(x in 1:nrow(paramMat)){
-    if(verbose) cat(paste0("\nRow ", x, " started!\n"))
+    if(verbose) cat(paste0("\n", Sys.time(), ": Row ", x, " started!\n"))
 
     if(is.na(cores)){
       if(as_list){

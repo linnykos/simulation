@@ -12,3 +12,4 @@ simulation/.Rproj.user
 .ROut
 *.RData
 .RData
+.DS_Store
