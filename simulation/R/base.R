@@ -1,7 +1,40 @@
-simulation_generator <- function(rule, paramMat, criterion, trials,
+#' Simulation setup
+#'
+#' This function applies \code{rule} (which takes in parameter settings and outputs
+#' a synthetic dataset) and \code{criterion} (which takes a synthetic dataset and outputs
+#' the results from estimators) to all the rows of \code{paramMat} (which is a matrix
+#' that contains different parameter settings for each row). The distinction between
+#' \code{rule} and \code{criterion} is only made by the user, as the user can design
+#' exactly the same simulation that uses one but not the other.
+#'
+#' The input to \code{rule} must be a vector (a row from \code{paramMat}), while
+#' the input to \code{criterion} must be first the output of \code{rule} and second
+#' a vector (the same row from \code{paramMat}). Both these functions is allowed
+#' to output lists.
+#'
+#' The output to \code{simulation_generator} is a list, one element for each
+#' row of \code{paramMat}. Each element of the list is typically a list or
+#' a matrix. This depends on how the user set up what \code{criterion} returns.
+#'
+#' The remaining inputs for \code{simulation_generator} are cosmetic.
+#'
+#' \code{as_list} is a boolean, where if \code{TRUE},
+#' mandates that the \code{trials} results for each row of \code{paramMat}
+#' is returned as a list. If \code{FALSE}, then the results are returned as a matrix.
+#'
+#' @param rule function
+#' @param paramMat matrix
+#' @param criterion function
+#' @param trials number of trials for each row
+#' @param cores number of cores
+#' @param as_list boolean
+#'
+#' @return list
+#' @export
+simulation_generator <- function(rule, criterion, paramMat, trials = 10,
  cores = NA, as_list = T){
 
-  if(!is.na(cores)) registerDoMC(cores = cores)
+  if(!is.na(cores)) doMC::registerDoMC(cores = cores)
 
   res <- lapply(1:nrow(paramMat), function(x){
     cat(paste0("\nRow ", x, " started!\n"))
@@ -11,6 +44,7 @@ simulation_generator <- function(rule, paramMat, criterion, trials,
       set.seed(y)
       criterion(rule(paramMat[x,]), paramMat[x,])
     }
+
     if(is.na(cores)){
       if(as_list){
         vec <- lapply(1:trials, fun)
@@ -18,7 +52,8 @@ simulation_generator <- function(rule, paramMat, criterion, trials,
         vec <- sapply(1:trials, fun)
       }
     } else {
-      vec <- foreach(trial = 1:trials) %dopar% fun(trial)
+      trial <- 0 #debugging reasons
+      vec <- foreach::"%dopar%"(foreach::foreach(i = 1:trials), fun(trial))
       if(!as_list) vec <- .adjustFormat(vec)
     }
   })
