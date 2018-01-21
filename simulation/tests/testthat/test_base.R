@@ -6,7 +6,7 @@ test_that("simulation_generator works", {
   rule <- function(vec, ...){
     stats::rnorm(100, mean = vec[1])
   }
-  criterion <- function(dat, vec, ...){
+  criterion <- function(dat, vec, y, ...){
     mean(dat)
   }
   len <- 6
@@ -26,7 +26,7 @@ test_that("simulation_generator works to return multiple things", {
   rule <- function(vec, ...){
     stats::rnorm(100, mean = vec[1])
   }
-  criterion <- function(dat, vec, ...){
+  criterion <- function(dat, vec, y, ...){
     c(mean(dat), stats::sd(dat))
   }
   len <- 6
@@ -47,7 +47,7 @@ test_that("simulation_generator works to return multiple things as lists", {
   rule <- function(vec, ...){
     stats::rnorm(100, mean = vec[1])
   }
-  criterion <- function(dat, vec, ...){
+  criterion <- function(dat, vec, y, ...){
     c(mean(dat), stats::sd(dat))
   }
   len <- 6
@@ -68,7 +68,7 @@ test_that("simulation_generator works with cores for lists", {
   rule <- function(vec, ...){
     stats::rnorm(100, mean = vec[1])
   }
-  criterion <- function(dat, vec, ...){
+  criterion <- function(dat, vec, y,...){
     c(mean(dat), stats::sd(dat))
   }
   len <- 6
@@ -92,7 +92,7 @@ test_that("simulation_generator works with cores for matrices", {
   rule <- function(vec, ...){
     stats::rnorm(100, mean = vec[1])
   }
-  criterion <- function(dat, vec, ...){
+  criterion <- function(dat, vec, y,...){
     c(mean(dat), stats::sd(dat))
   }
   len <- 6
@@ -115,7 +115,7 @@ test_that("simulation_generator works for errors", {
     if(vec[1] == 2) stop()
     stats::rnorm(100, mean = vec[1])
   }
-  criterion <- function(dat, vec, ...){
+  criterion <- function(dat, vec, y,...){
     c(mean(dat), stats::sd(dat))
   }
   len <- 6
@@ -143,7 +143,7 @@ test_that("simulation_generator can save", {
   rule <- function(vec, ...){
     stats::rnorm(100, mean = vec[1])
   }
-  criterion <- function(dat, vec, ...){
+  criterion <- function(dat, vec, y,...){
     mean(dat)
   }
   len <- 6
