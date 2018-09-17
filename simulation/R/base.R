@@ -45,10 +45,16 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
   stopifnot(is.matrix(paramMat))
 
   if(!is.na(cores)) doMC::registerDoMC(cores = cores)
+  if(length(trials) == 1 & nrow(paramMat) > 1){
+    trials_vec <- rep(trials, nrow(paramMat))
+  } else {
+    stopifnot(length(trials) == nrow(paramMat))
+    trials_vec <- trials
+  }
 
   # function for each trial and row of paramMat
   fun <- function(y){
-    if(verbose && trials > 10 && y %% floor(trials/10) == 0) cat("*")
+    if(verbose && trials_vec[x] > 10 && y %% floor(trials/10) == 0) cat("*")
     set.seed(y)
     tryCatch({
       criterion(rule(paramMat[x,]), paramMat[x,], y)
@@ -64,13 +70,13 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
 
     if(is.na(cores)){
       if(as_list){
-        vec <- lapply(1:trials, fun)
+        vec <- lapply(1:trials_vec[x], fun)
       } else {
-        vec <- sapply(1:trials, fun)
+        vec <- sapply(1:trials_vec[x], fun)
       }
     } else {
       i <- 0 #debugging reasons
-      vec <- foreach::"%dopar%"(foreach::foreach(i = 1:trials), fun(i))
+      vec <- foreach::"%dopar%"(foreach::foreach(i = 1:trials_vec[x]), fun(i))
       if(!as_list) vec <- .adjustFormat(vec)
     }
 
