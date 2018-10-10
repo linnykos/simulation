@@ -54,7 +54,7 @@ simulation_generator <- function(rule, criterion, paramMat, trials = 10,
 
   # function for each trial and row of paramMat
   fun <- function(y){
-    if(verbose && trials_vec[x] > 10 && y %% floor(trials/10) == 0) cat("*")
+    if(verbose && trials_vec[x] > 10 && y %% floor(trials_vec[x]/10) == 0) cat("*")
     set.seed(y)
     tryCatch({
       criterion(rule(paramMat[x,]), paramMat[x,], y)
